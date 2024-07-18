@@ -2,7 +2,7 @@
  * @Author: xuzhaoyang 15809246338@163.com
  * @Date: 2024-07-16 16:09:10
  * @LastEditors: xuzhaoyang 15809246338@163.com
- * @LastEditTime: 2024-07-17 09:43:04
+ * @LastEditTime: 2024-07-18 09:11:03
  * @FilePath: /go-mall/service/user.go
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -94,5 +94,50 @@ func (service *UserService) Register(ctx context.Context) serializer.Response {
 	return serializer.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
+	}
+}
+
+func (service *UserService) Login(ctx context.Context) serializer.Response {
+	var user *model.User
+	code := e.Success
+	userDao := dao.NewUserDao(ctx)
+	// 判断用户是否存在
+	user, exist, err := userDao.ExistOrNotByUserName(service.UserName)
+	if !exist || err != nil {
+		code = e.ErrorUserNotFound
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+			Data:   "用户不存在，请注册",
+		}
+	}
+
+	// 用户存在，校验密码
+	if user.CheckPassword(service.Password) == false {
+		code = e.ErrorNotCompare
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+		}
+	}
+
+	// http 无状态，所以签发token
+	token, err := util.GenerateToken(user.ID, service.UserName, 0)
+	if err != nil {
+		code = e.ErrorAuthToken
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+			Data:   "token签发失败",
+		}
+	}
+
+	return serializer.Response{
+		Status: code,
+		Msg:    e.GetMsg(code),
+		Data: serializer.TokenData{
+			User:  serializer.BuildUser(user),
+			Token: token,
+		},
 	}
 }
