@@ -2,7 +2,7 @@
  * @Author: xuzhaoyang 15809246338@163.com
  * @Date: 2024-07-16 16:09:10
  * @LastEditors: xuzhaoyang 15809246338@163.com
- * @LastEditTime: 2024-07-18 15:53:51
+ * @LastEditTime: 2024-07-18 17:44:59
  * @FilePath: /go-mall/service/user.go
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -10,12 +10,16 @@ package service
 
 import (
 	"context"
+	"go-mall/conf"
 	"go-mall/dao"
 	"go-mall/model"
 	"go-mall/pkg/e"
 	"go-mall/pkg/util"
 	"go-mall/serializer"
 	"mime/multipart"
+	"strings"
+
+	"gopkg.in/mail.v2"
 )
 
 // UserService 管理用户服务
@@ -223,5 +227,57 @@ func (service *UserService) Post(ctx context.Context, uId uint, file multipart.F
 		Data: serializer.TokenData{
 			User: serializer.BuildUser(user),
 		},
+	}
+}
+
+// 发送邮箱
+func (service *SendEmailService) Send(ctx context.Context, uId uint) serializer.Response {
+	code := e.Success
+	var address string
+	var notice *model.Notice // 绑定邮箱，修改密码 模板通知
+	// 生成token 发送到用户邮箱，直接点击邮箱链接改密码
+	token, err := util.GenerateEmailToken(uId, service.OperationType, service.Email, service.Password)
+	if err != nil {
+		code = e.ErrorAuthToken
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+		}
+	}
+
+	noticeDao := dao.NewNoticeDao(ctx)
+	notice, err = noticeDao.GetNoticeById(service.OperationType)
+	if err != nil {
+		code = e.ErrorAuthToken
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+		}
+	}
+
+	address = conf.ValidEmail + token // 发送方
+	mailStr := notice.Text
+	// address替换Email
+	mailTex := strings.Replace(mailStr, "Email", address, -1)
+
+	m := mail.NewMessage()
+	m.SetHeader("From", conf.SmtpEmail)
+	m.SetHeader("To", service.Email)
+	m.SetHeader("Subject", "XZY-Mall")
+	m.SetBody("text/html", mailTex)
+
+	d := mail.NewDialer(conf.SmtpHost, 465, conf.SmtpEmail, conf.SmtpPass)
+	d.StartTLSPolicy = mail.MandatoryStartTLS
+	if err = d.DialAndSend(m); err != nil {
+		code = e.ErrorSendEmail
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+		}
+	}
+
+	return serializer.Response{
+		Status: code,
+		Msg:    e.GetMsg(code),
 	}
 }

@@ -2,7 +2,7 @@
  * @Author: xuzhaoyang 15809246338@163.com
  * @Date: 2024-07-16 17:01:21
  * @LastEditors: xuzhaoyang 15809246338@163.com
- * @LastEditTime: 2024-07-18 15:32:12
+ * @LastEditTime: 2024-07-18 16:53:00
  * @FilePath: /go-mall/api/v1/user.go
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -54,6 +54,17 @@ func UploadAvatar(ctx *gin.Context) {
 	claims, _ := util.ParseToken(ctx.GetHeader("Authorization"))
 	if err := ctx.ShouldBind(&uploadAvatar); err == nil {
 		res := uploadAvatar.Post(ctx.Request.Context(), claims.ID, file, fileSize)
+		ctx.JSON(http.StatusOK, res)
+	} else {
+		ctx.JSON(http.StatusBadRequest, err)
+	}
+}
+
+func SendEmail(ctx *gin.Context) {
+	var sendEmail service.SendEmailService
+	claims, _ := util.ParseToken(ctx.GetHeader("Authorization"))
+	if err := ctx.ShouldBind(&sendEmail); err == nil {
+		res := sendEmail.Send(ctx.Request.Context(), claims.ID)
 		ctx.JSON(http.StatusOK, res)
 	} else {
 		ctx.JSON(http.StatusBadRequest, err)
