@@ -2,7 +2,7 @@
  * @Author: xuzhaoyang 15809246338@163.com
  * @Date: 2024-07-16 16:09:10
  * @LastEditors: xuzhaoyang 15809246338@163.com
- * @LastEditTime: 2024-07-18 09:11:03
+ * @LastEditTime: 2024-07-18 10:54:33
  * @FilePath: /go-mall/service/user.go
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -138,6 +138,44 @@ func (service *UserService) Login(ctx context.Context) serializer.Response {
 		Data: serializer.TokenData{
 			User:  serializer.BuildUser(user),
 			Token: token,
+		},
+	}
+}
+
+// Update用户修改信息
+func (service *UserService) Update(ctx context.Context, userId uint) serializer.Response {
+	var user *model.User
+	var err error
+	code := e.Success
+	// 找到要修改的用户
+	userDao := dao.NewUserDao(ctx)
+	user, err = userDao.GetUserById(userId)
+	if err != nil {
+		code = e.ErrorUserNotFound
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+		}
+	}
+	// 修改昵称nickName
+	if service.NickName != "" {
+		user.NickName = service.NickName
+	}
+	err = userDao.UpdateUserById(userId, user)
+	if err != nil {
+		code = e.Error
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+			Error:  err.Error(),
+		}
+	}
+
+	return serializer.Response{
+		Status: code,
+		Msg:    e.GetMsg(code),
+		Data: serializer.TokenData{
+			User: serializer.BuildUser(user),
 		},
 	}
 }

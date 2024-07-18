@@ -2,7 +2,7 @@
  * @Author: xuzhaoyang 15809246338@163.com
  * @Date: 2024-07-16 16:34:51
  * @LastEditors: xuzhaoyang 15809246338@163.com
- * @LastEditTime: 2024-07-16 17:40:07
+ * @LastEditTime: 2024-07-18 10:24:01
  * @FilePath: /go-mall/dao/user.go
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -44,4 +44,16 @@ func (dao *UserDao) ExistOrNotByUserName(userName string) (user *model.User, exi
 // 创建用户
 func (dao *UserDao) CreateUser(user *model.User) (err error) {
 	return dao.DB.Model(&model.User{}).Create(&user).Error
+}
+
+// GetUserById根据id获取user
+func (dao *UserDao) GetUserById(id uint) (user *model.User, err error) {
+	err = dao.DB.Model(&model.User{}).Where("id = ?", id).First(&user).Error
+	return
+}
+
+// UpdateUserById根据id更新user信息
+func (dao *UserDao) UpdateUserById(id uint, user *model.User) (err error) {
+	err = dao.DB.Model(&model.User{}).Where("id = ?", id).Updates(&user).Error
+	return
 }
