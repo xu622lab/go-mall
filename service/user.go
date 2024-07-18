@@ -2,7 +2,7 @@
  * @Author: xuzhaoyang 15809246338@163.com
  * @Date: 2024-07-16 16:09:10
  * @LastEditors: xuzhaoyang 15809246338@163.com
- * @LastEditTime: 2024-07-18 10:54:33
+ * @LastEditTime: 2024-07-18 15:53:51
  * @FilePath: /go-mall/service/user.go
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -15,6 +15,7 @@ import (
 	"go-mall/pkg/e"
 	"go-mall/pkg/util"
 	"go-mall/serializer"
+	"mime/multipart"
 )
 
 // UserService 管理用户服务
@@ -162,6 +163,51 @@ func (service *UserService) Update(ctx context.Context, userId uint) serializer.
 		user.NickName = service.NickName
 	}
 	err = userDao.UpdateUserById(userId, user)
+	if err != nil {
+		code = e.Error
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+			Error:  err.Error(),
+		}
+	}
+
+	return serializer.Response{
+		Status: code,
+		Msg:    e.GetMsg(code),
+		Data: serializer.TokenData{
+			User: serializer.BuildUser(user),
+		},
+	}
+}
+
+// Upload头像更新
+func (service *UserService) Post(ctx context.Context, uId uint, file multipart.File, fileSize int64) serializer.Response {
+	code := e.Success
+	var user *model.User
+	var err error
+	userDao := dao.NewUserDao(ctx)
+	user, err = userDao.GetUserById(uId)
+	if err != nil {
+		code = e.Error
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+		}
+	}
+	// 保存图片到本地函数
+	path, err := UploadAvatarTolocalStatic(file, uId, user.UserName)
+	if err != nil {
+		code = e.ErrorUploadFail
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+			Error:  err.Error(),
+		}
+	}
+
+	user.Avatar = path
+	err = userDao.UpdateUserById(uId, user)
 	if err != nil {
 		code = e.Error
 		return serializer.Response{
