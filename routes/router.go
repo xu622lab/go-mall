@@ -2,7 +2,7 @@
  * @Author: xuzhaoyang 15809246338@163.com
  * @Date: 2024-07-16 15:41:08
  * @LastEditors: xuzhaoyang 15809246338@163.com
- * @LastEditTime: 2024-07-21 11:02:05
+ * @LastEditTime: 2024-07-21 15:51:31
  * @FilePath: /go-mall/routes/router.go
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -30,6 +30,9 @@ func NewRouter() *gin.Engine {
 		// 用户操作
 		v1.POST("user/register", api.UserRegister)
 		v1.POST("user/login", api.UserLogin)
+
+		// 轮播图
+		v1.GET("carousels", api.ListCarousel)
 
 		authed := v1.Group("/") // 需要登录保护
 		authed.Use(middleware.JWT())
