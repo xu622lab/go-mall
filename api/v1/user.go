@@ -2,7 +2,7 @@
  * @Author: xuzhaoyang 15809246338@163.com
  * @Date: 2024-07-16 17:01:21
  * @LastEditors: xuzhaoyang 15809246338@163.com
- * @LastEditTime: 2024-07-21 10:44:41
+ * @LastEditTime: 2024-07-21 20:18:31
  * @FilePath: /go-mall/api/v1/user.go
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -22,7 +22,8 @@ func UserRegister(ctx *gin.Context) {
 		res := userRegister.Register(ctx.Request.Context())
 		ctx.JSON(http.StatusOK, res)
 	} else {
-		ctx.JSON(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		util.LogrusObj.Infoln(err)
 	}
 }
 
@@ -32,7 +33,8 @@ func UserLogin(ctx *gin.Context) {
 		res := userLogin.Login(ctx.Request.Context())
 		ctx.JSON(http.StatusOK, res)
 	} else {
-		ctx.JSON(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		util.LogrusObj.Infoln(err)
 	}
 }
 
@@ -43,7 +45,8 @@ func UserUpdate(ctx *gin.Context) {
 		res := userUpdate.Update(ctx.Request.Context(), claims.ID)
 		ctx.JSON(http.StatusOK, res)
 	} else {
-		ctx.JSON(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		util.LogrusObj.Infoln(err)
 	}
 }
 
@@ -56,7 +59,8 @@ func UploadAvatar(ctx *gin.Context) {
 		res := uploadAvatar.Post(ctx.Request.Context(), claims.ID, file, fileSize)
 		ctx.JSON(http.StatusOK, res)
 	} else {
-		ctx.JSON(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		util.LogrusObj.Infoln(err)
 	}
 }
 
@@ -67,7 +71,8 @@ func SendEmail(ctx *gin.Context) {
 		res := sendEmail.Send(ctx.Request.Context(), claims.ID)
 		ctx.JSON(http.StatusOK, res)
 	} else {
-		ctx.JSON(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		util.LogrusObj.Infoln(err)
 	}
 }
 
@@ -78,7 +83,8 @@ func ValidEmail(ctx *gin.Context) {
 		res := validEmail.Valid(ctx.Request.Context(), ctx.GetHeader("Authorization"))
 		ctx.JSON(http.StatusOK, res)
 	} else {
-		ctx.JSON(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		util.LogrusObj.Infoln(err)
 	}
 }
 
@@ -90,6 +96,7 @@ func ShowMoney(ctx *gin.Context) {
 		res := ShowMoney.Show(ctx.Request.Context(), claims.ID)
 		ctx.JSON(http.StatusOK, res)
 	} else {
-		ctx.JSON(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		util.LogrusObj.Infoln(err)
 	}
 }
