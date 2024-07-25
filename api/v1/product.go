@@ -30,3 +30,13 @@ func ListProduct(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, ErrorResponse(err))
 	}
 }
+
+func SearchProduct(ctx *gin.Context) {
+	var searchProductService service.ProuctService
+	if err := ctx.ShouldBind(&searchProductService); err == nil {
+		res := searchProductService.Search(ctx.Request.Context())
+		ctx.JSON(http.StatusOK, res)
+	} else {
+		ctx.JSON(http.StatusOK, ErrorResponse(err))
+	}
+}

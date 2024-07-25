@@ -2,7 +2,7 @@
  * @Author: xuzhaoyang 15809246338@163.com
  * @Date: 2024-07-25 10:50:16
  * @LastEditors: xuzhaoyang 15809246338@163.com
- * @LastEditTime: 2024-07-25 17:25:36
+ * @LastEditTime: 2024-07-25 19:48:04
  * @FilePath: /go-mall/dao/product.go
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -42,5 +42,16 @@ func (dao *ProductDao) ListProductByCondition(condition map[string]interface{}, 
 	// page.PageNum 是当前页码
 	// Offset((page.PageNum - 1) * (page.PageSize)) 计算查询的起始位置，确保从正确的页码开始。
 	err = dao.DB.Where(condition).Offset((page.PageNum - 1) * (page.PageSize)).Limit(page.PageSize).Find(&products).Error
+	return
+}
+
+func (dao *ProductDao) SearchProduct(info string, page model.BasePage) (products []*model.Product, count int64, err error) {
+	err = dao.DB.Model(&model.Product{}).Where("title LIKE ? OR info LIKE ?", "%"+info+"%", "%"+info+"%").Count(&count).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	err = dao.DB.Model(&model.Product{}).Where("title LIKE ? OR info LIKE ?", "%"+info+"%", "%"+info+"%").
+		Offset((page.PageNum - 1) * (page.PageSize)).Limit(page.PageSize).Find(&products).Error
 	return
 }
