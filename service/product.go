@@ -2,7 +2,7 @@
  * @Author: xuzhaoyang 15809246338@163.com
  * @Date: 2024-07-21 20:03:07
  * @LastEditors: xuzhaoyang 15809246338@163.com
- * @LastEditTime: 2024-07-25 15:36:38
+ * @LastEditTime: 2024-07-25 17:15:31
  * @FilePath: /go-mall/service/product.go
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -23,7 +23,7 @@ import (
 type ProuctService struct {
 	Id            uint   `json:"id" form:"id"`
 	Name          string `json:"name" form:"name"`
-	CategoryId    uint   `json:"categort_id" form:"category_id"`
+	CategoryId    uint   `json:"category_id" form:"category_id"`
 	Title         string `json:"title" form:"title"`
 	Info          string `json:"info" form:"info"`
 	ImgPath       string `json:"img_path" form:"img_path"`
@@ -121,4 +121,39 @@ func (service *ProuctService) Create(ctx context.Context, uId uint, files []*mul
 		Msg:    e.GetMsg(code),
 		Data:   serializer.BuildProduct(product),
 	}
+}
+
+func (service *ProuctService) List(ctx context.Context) serializer.Response {
+	var products []*model.Product
+	var err error
+	code := e.Success
+	if service.PageSize == 0 {
+		service.PageSize = 15
+	}
+	condition := make(map[string]interface{})
+	if service.CategoryId != 0 {
+		condition["category_id"] = service.CategoryId
+	}
+	productDao := dao.NewProductDao(ctx)
+	total, err := productDao.CountProductByCondition(condition)
+	if err != nil {
+		code = e.Error
+		util.LogrusObj.Infoln(err)
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+			Error:  err.Error(),
+		}
+	}
+
+	wg := new(sync.WaitGroup)
+	wg.Add(1)
+	go func() {
+		productDao = dao.NewProductDaoByDB(productDao.DB)
+		products, _ = productDao.ListProductByCondition(condition, service.BasePage)
+		wg.Done()
+	}()
+	wg.Wait()
+
+	return serializer.BuildListResponse(serializer.BuildProducts(products), uint(total))
 }

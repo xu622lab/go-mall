@@ -20,3 +20,13 @@ func CreateProduct(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, ErrorResponse(err))
 	}
 }
+
+func ListProduct(ctx *gin.Context) {
+	var listProductService service.ProuctService
+	if err := ctx.ShouldBind(&listProductService); err == nil {
+		res := listProductService.List(ctx.Request.Context())
+		ctx.JSON(http.StatusOK, res)
+	} else {
+		ctx.JSON(http.StatusOK, ErrorResponse(err))
+	}
+}
