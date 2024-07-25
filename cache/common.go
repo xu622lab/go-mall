@@ -2,7 +2,7 @@
  * @Author: xuzhaoyang 15809246338@163.com
  * @Date: 2024-07-25 15:29:49
  * @LastEditors: xuzhaoyang 15809246338@163.com
- * @LastEditTime: 2024-07-25 15:53:22
+ * @LastEditTime: 2024-07-25 16:12:26
  * @FilePath: /go-mall/cache/common.go
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -25,7 +25,7 @@ var (
 )
 
 func init() {
-	file, err := ini.Load("./conf/config.ini")
+	file, err := ini.Load("/Users/marie/Desktop/GoCode/go-mall/conf/config.ini")
 	if err != nil {
 		fmt.Println("redis config err", err)
 	}
