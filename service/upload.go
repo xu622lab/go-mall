@@ -2,7 +2,7 @@
  * @Author: xuzhaoyang 15809246338@163.com
  * @Date: 2024-07-18 11:25:55
  * @LastEditors: xuzhaoyang 15809246338@163.com
- * @LastEditTime: 2024-07-18 16:02:04
+ * @LastEditTime: 2024-07-21 20:33:15
  * @FilePath: /go-mall/service/upload.go
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -33,6 +33,25 @@ func UploadAvatarTolocalStatic(file multipart.File, userId uint, userName string
 	}
 
 	return "user" + bId + "/" + userName + ".jpg", err
+}
+
+func UploadProductTolocalStatic(file multipart.File, userId uint, productName string) (filepath string, err error) {
+	bId := strconv.Itoa(int(userId)) // 路径拼接
+	basePath := "." + conf.ProductPhotoPath + "boss" + bId + "/"
+	if !DirExistOrNot(basePath) {
+		CreateDir(basePath)
+	}
+	productPath := basePath + productName + ".jpg" // todo: 把file的后缀提取出来
+	content, err := io.ReadAll(file)
+	if err != nil {
+		return "", err
+	}
+	err = os.WriteFile(productPath, content, 0666)
+	if err != nil {
+		return
+	}
+
+	return "boss" + bId + "/" + productName + ".jpg", err
 }
 
 // 判断文件夹路径是否存在
