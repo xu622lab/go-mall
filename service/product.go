@@ -2,7 +2,7 @@
  * @Author: xuzhaoyang 15809246338@163.com
  * @Date: 2024-07-21 20:03:07
  * @LastEditors: xuzhaoyang 15809246338@163.com
- * @LastEditTime: 2024-07-25 19:40:53
+ * @LastEditTime: 2024-07-26 10:16:17
  * @FilePath: /go-mall/service/product.go
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -176,4 +176,26 @@ func (service *ProuctService) Search(ctx context.Context) serializer.Response {
 		}
 	}
 	return serializer.BuildListResponse(serializer.BuildProducts(products), uint(count))
+}
+
+func (service *ProuctService) Show(ctx context.Context, id string) serializer.Response {
+	code := e.Success
+	pId, _ := strconv.Atoi(id)
+	productDao := dao.NewProductDao(ctx)
+	product, err := productDao.GetProductById(uint(pId))
+	if err != nil {
+		code = e.Error
+		util.LogrusObj.Infoln(err)
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+			Error:  err.Error(),
+		}
+	}
+
+	return serializer.Response{
+		Status: code,
+		Msg:    e.GetMsg(code),
+		Data:   serializer.BuildProduct(product),
+	}
 }
