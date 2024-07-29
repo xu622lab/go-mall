@@ -2,7 +2,7 @@
  * @Author: xuzhaoyang 15809246338@163.com
  * @Date: 2024-07-29 10:07:17
  * @LastEditors: xuzhaoyang 15809246338@163.com
- * @LastEditTime: 2024-07-29 20:28:53
+ * @LastEditTime: 2024-07-29 20:34:48
  * @FilePath: /go-mall/service/Order.go
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -158,7 +158,7 @@ func (service *OrderService) List(ctx context.Context, uId uint) serializer.Resp
 		condition["type"] = service.Type
 	}
 	condition["user_id"] = uId
-	orderList, err := orderDao.ListOrderByCondition(condition, service.BasePage)
+	orderList, total, err := orderDao.ListOrderByCondition(condition, service.BasePage)
 	if err != nil {
 		code = e.Error
 		return serializer.Response{
@@ -171,6 +171,7 @@ func (service *OrderService) List(ctx context.Context, uId uint) serializer.Resp
 	return serializer.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
-		Data:   serializer.BuildOrders(ctx, orderList),
+
+		Data: serializer.BuildListResponse(serializer.BuildOrders(ctx, orderList), uint(total)),
 	}
 }
