@@ -2,7 +2,7 @@
  * @Author: xuzhaoyang 15809246338@163.com
  * @Date: 2024-07-29 10:07:17
  * @LastEditors: xuzhaoyang 15809246338@163.com
- * @LastEditTime: 2024-07-29 11:10:06
+ * @LastEditTime: 2024-07-29 11:12:13
  * @FilePath: /go-mall/service/address.go
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -70,11 +70,11 @@ func (service *AddressService) Show(ctx context.Context, aId string) serializer.
 	}
 }
 
-func (service *AddressService) Delete(ctx context.Context, aId string) serializer.Response {
+func (service *AddressService) Delete(ctx context.Context, uId uint, aId string) serializer.Response {
 	addressId, _ := strconv.Atoi(aId)
 	code := e.Success
 	addressDao := dao.NewAddressDao(ctx)
-	err := addressDao.DeleteAddressByAid(uint(addressId))
+	err := addressDao.DeleteAddressByAid(uId, uint(addressId))
 	if err != nil {
 		code = e.Error
 		return serializer.Response{
