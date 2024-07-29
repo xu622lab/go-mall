@@ -2,7 +2,7 @@
  * @Author: xuzhaoyang 15809246338@163.com
  * @Date: 2024-07-16 15:41:08
  * @LastEditors: xuzhaoyang 15809246338@163.com
- * @LastEditTime: 2024-07-29 09:46:18
+ * @LastEditTime: 2024-07-29 15:46:04
  * @FilePath: /go-mall/routes/router.go
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -83,6 +83,12 @@ func NewRouter() *gin.Engine {
 			authed.GET("addresses", api.ListAddress)
 			authed.PUT("addresses/:id", api.UpdateAddress)
 			authed.DELETE("addresses/:id", api.DeleteAddress)
+
+			// 购物车操作
+			authed.POST("carts", api.CreateCart)
+			authed.GET("carts", api.ListCart)
+			authed.PUT("carts", api.UpdateCart)
+			authed.DELETE("carts", api.DeleteCart)
 
 		}
 
